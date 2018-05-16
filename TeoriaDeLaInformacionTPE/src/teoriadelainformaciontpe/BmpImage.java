@@ -75,4 +75,12 @@ public class BmpImage implements Comparable<BmpImage> {
         return 0;
     }
    
+    public int getHeight()  {
+        return bmp.getHeight();
+    }
+    
+    public int getWidth() {
+        return bmp.getWidth();
+    }
+   
 }
