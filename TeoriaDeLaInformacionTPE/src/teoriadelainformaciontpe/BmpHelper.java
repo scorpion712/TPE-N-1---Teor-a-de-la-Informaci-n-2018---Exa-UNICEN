@@ -47,8 +47,9 @@ public class BmpHelper {
 
     }
 
-    public static void writeBmpPixels() {
-
+    public static BmpImage writeBmpPixels(BmpImage image, int i, int j, int rgb) {
+        image.getBmp().setRGB(i, j, rgb);
+        return image;
     }
 
     /*
