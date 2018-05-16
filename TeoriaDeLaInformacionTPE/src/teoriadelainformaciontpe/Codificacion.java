@@ -1,18 +1,20 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Teoria de la Informacion - 2018
  */
 package teoriadelainformaciontpe;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -29,71 +31,37 @@ public class Codificacion {
         return new String();
     }
 
-    //*
+    /*
+    Solo genero el código, falta decodificar... 
+	
     private BmpImage image;
-    private Map<Integer, String> codification = new HashMap<>(); // it will contains the huffman code for each symbol (pixel in this case)
-
+    
+    
     public Codificacion(BmpImage image) {
         this.image = image;
     }
 
-    // Getting huffman's code for the given image
-    public void huffman() {
-        Map<Integer, Double> distribution = BmpHelper.getDistribution(image);
+    // Header encode. Contains image size, symbols amount and its occurrences
+    private void headerEncode(BufferedWriter bw) {
+        try {
+            // Write image size
+            bw.write(image.getBmp().getWidth());
+            bw.write(image.getBmp().getHeight());
 
-        Map<Integer, Node> symbol_node = new HashMap<Integer, Node>();
-        Vector<Node> middle = new Vector<Node>();
-
-        for (Integer symbol : distribution.keySet()) {
-            Node node = new Node(distribution.get(symbol), -1, null);
-            middle.add(node);
-            symbol_node.put(symbol, node);
-        }
-        encode(middle);
-        for (Integer symbol : distribution.keySet()) {
-            Node node = symbol_node.get(symbol);
-            codification.put(symbol, recursion(node));
-        }
-    }
-
-    // Creating huffman tree
-    public void encode(Vector<Node> nodeVector) {
-        if (nodeVector.size() > 1) { // we need the last two
-            Collections.sort(nodeVector); // probabilities order
-            Vector<Node> nextVectorNode = new Vector<Node>();
-            for (int i = 0; i < nodeVector.size() - 2; i++) {
-                Node next = new Node(nodeVector.get(i).getProbability(), -1, null); // -1 is an invalid code
-                nodeVector.elementAt(i).setNext(next);
-                nextVectorNode.add(next);
+            Hashtable<Integer, Integer> readImageTable = BmpHelper.readImage(image.getBmp()); // symbol, times its appear
+            Vector<Integer> vectorSimbolos = new Vector<Integer>(readImageTable.keySet().size()); // Write symbols amount
+            Collections.sort(vectorSimbolos);
+            Vector<Double> vectorProb = BmpHelper.getProb(vectorSimbolos, readImageTable, image.getBmp()); // symbol probability
+            for (Double d : vectorProb) {
+                bw.write(d.toString()); // symbol occurrences
             }
-            double suma = (nodeVector.get(nodeVector.size() - 1).getProbability() + nodeVector.elementAt(nodeVector.size() - 2).getProbability()); // add the lower probabilities 
-            Node newNode = new Node(suma, -1, null);
-            //lower branch tree code = 0, 1 for the other branch
-            nodeVector.elementAt(nodeVector.size() - 2).setNext(newNode);
-            nodeVector.elementAt(nodeVector.size() - 2).setCode(1);
-            nodeVector.get(nodeVector.size() - 1).setNext(newNode);
-            nodeVector.elementAt(nodeVector.size() - 1).setCode(0);
-            nextVectorNode.add(newNode);
-            encode(nextVectorNode); // calls itself with the new next vector
+        } catch (IOException ex) {
+            Logger.getLogger(Codificacion.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public String recursion(Node node) {
-        if (node != null && node.getProbability() < 1) {
-            if (node.getCode() == 1) {
-                return recursion(node.getNext()) + "1";
-            }   // not else because code can be -1 (by default)
-            if (node.getCode() == 0) {
-                return recursion(node.getNext()) + "0";
-            }
-            return recursion(node.getNext());
-        }
-        return "";
-    }
-
-    
     public void generateFile() {
-        huffman();
+        Map<Integer, String> codification = new Huffman(image).getCodification(); // gets Huffman codification
         try {
             String path = "huffman.txt";
             File file = new File(path);
@@ -101,13 +69,16 @@ public class Codificacion {
             if (file.exists()) {
                 bw = new BufferedWriter(new FileWriter(file));
 
+                // Header to encode 
+                headerEncode(bw);
+
                 Iterator it = codification.keySet().iterator();
                 while (it.hasNext()) {
                     Integer key = (Integer) it.next();
-                    bw.write(key + " = " + codification.get(key));
-                    System.out.println(key + " = " + codification.get(key));
+                    bw.write(codification.get(key));
+                    //bw.write(key + " = " + codification.get(key));
+                    //System.out.println(key + " = " + codification.get(key));
                 }
-                //bw.write("El fichero de texto ya estaba creado.");
             } else {
                 bw = new BufferedWriter(new FileWriter(file));
 
@@ -116,7 +87,6 @@ public class Codificacion {
                     Integer key = (Integer) it.next();
                     bw.write(key + " = " + codification.get(key));
                     System.out.println(key + " = " + codification.get(key));
-                    //bw.write("Acabo de crear el fichero de texto.");
                 }
                 bw.close();
             }
@@ -124,4 +94,8 @@ public class Codificacion {
             e.printStackTrace();
         }
     }
+
+
+
+     */
 }
