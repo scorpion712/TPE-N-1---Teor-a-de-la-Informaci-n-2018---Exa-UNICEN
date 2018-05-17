@@ -30,48 +30,60 @@ public class Decoder {
     private BmpImage image;
     private Map<Integer, String> codification = new HashMap<>();
 
-    private Integer getSymbol(String key) {
-        if (codification.containsKey(key)) {
-            for (Integer i : codification.keySet()) {
-                if (codification.get(i).equals(key)) {
-                    return i;
-                }
+    private int headerDecode(char cbuf[]) {
+        int n = 3;
+        try {
+            int width = cbuf[0];
+            int height = cbuf[1];
+            image = new BmpImage(new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY), "decode_image");
+            int symbols = cbuf[3];
+            Vector<Integer> symbVec = new Vector<>();
+            double[] probVec = new double[symbols];
+            for (int i = 0; i < symbols; i++) {
+                int s = cbuf[n];
+                symbVec.add(s);
+                probVec[i] = (double) cbuf[n + 1] / (width * height);
+                n++;
             }
+            System.out.println("symbVec: " + symbVec.toString());
+            codification = new Huffman(symbVec, probVec).getCodification();
+            return n;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        return null;
+        return n;
     }
 
+    private int n=0;
     public BmpImage decodeImage() {
         try {
             String path = "huffman.txt";
             // Cargar datos de archivo txt utf-16
             InputStream inputStream = new FileInputStream(path);
-          //  Reader ois = new InputStreamReader(inputStream, "UTF-16");
+            Reader ois = new InputStreamReader(inputStream, "UTF-16");
             // ...
             char[] cbuf = new char[2048];
+            headerDecode(ois);
             // NOTA: Leer la documentación del método read para entender como funciona 
-           // int nChars = inputStreamWriter.read(cbuf);
-
-            FileInputStream archivoentrada = new FileInputStream(path);
-          ObjectInputStream ois = new ObjectInputStream(archivoentrada);
-
+            int nChars = ois.read(cbuf);
             char character;
             StringBuffer symbols = new StringBuffer();
-            headerDecode(ois);
 
-            for (int i=0; i < image.getWidth(); i++) {
+                        System.out.println("Codification: " + codification.toString());
+            //int n = headerDecode(cbuf);
+            for (int i = 0; i < image.getWidth(); i++) {
                 for (int j = 0; j < image.getHeight(); j++) {
                     boolean painted = false;
-                    while (!painted) {
+                    while (!painted && n < nChars) {
                         Integer decodeSymb = decodeSymbol(symbols);
                         if (decodeSymb != null) {
                             BmpHelper.writeBmpPixels(image, i, j, decodeSymb);
                             painted = true;
                         } else {
-                            character =  ois.readChar();
-                            character = binarizeString(character, symbols);
+                            character = cbuf[n];
+                            binarizeString(character, symbols);
                         }
+                        n++;
                     }
                 }
             }
@@ -81,18 +93,19 @@ public class Decoder {
         return image;
     }
 
-    private void headerDecode(ObjectInputStream ois) {
+    private void headerDecode(Reader ois) {
         try {
             int width = ois.read();
             int height = ois.read();
             image = new BmpImage(new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY), "decode_image");
             int symbols = ois.read();
-
+            n=3;
             Vector<Integer> symbVec = new Vector<>();
             double[] probVec = new double[symbols];
             for (int i = 0; i < symbols; i++) {
                 symbVec.add(ois.read());
-                probVec[i] = (double) ois.read() / (width * height);
+                probVec[i] = (double) ois.read() / (width * height); 
+                n++;
             }
             codification = new Huffman(symbVec, probVec).getCodification();
         } catch (IOException e) {
@@ -112,18 +125,27 @@ public class Decoder {
         return null;
     }
 
-    private char binarizeString(char character, StringBuffer symbols) {
-        char mascara = 1 << 15;
+    private Integer getSymbol(String code) {
+        if (codification.containsValue(code)) {
+            for (Integer i : codification.keySet()) {
+                if (codification.get(i).equals(code)) {
+                    return i;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void binarizeString(char character, StringBuffer symbols) {
+        char mask = 1 << 15;
         for (int i = 0; i < 16; i++) {
-            if ((character & mascara) == 32768) {
+            if ((character & mask) == 32768) {
                 symbols.append("1");
             } else {
                 symbols.append("0");
             }
             character = (char) (character << 1);
         }
-        return character;
     }
-    
-   
+
 }
