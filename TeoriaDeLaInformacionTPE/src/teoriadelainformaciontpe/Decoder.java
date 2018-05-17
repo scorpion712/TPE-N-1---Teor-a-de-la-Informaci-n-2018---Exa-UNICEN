@@ -30,12 +30,7 @@ public class Decoder {
     private BmpImage image;
     private Map<Integer, String> codification = new HashMap<>();
 
-    public Decoder() {
-
-    }
-
     private Integer getSymbol(String key) {
-        System.out.println("Codifiation: " + codification);
         if (codification.containsKey(key)) {
             for (Integer i : codification.keySet()) {
                 if (codification.get(i).equals(key)) {
@@ -44,34 +39,7 @@ public class Decoder {
             }
         }
 
-        return -1;
-    }
-
-    private void headerDecode(BufferedReader in) {
-        try {
-            // Decode image size
-
-            int width = Integer.parseInt(in.readLine());
-            int height = Integer.parseInt(in.readLine());
-
-            image = new BmpImage(new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY), "decode_image");
-            // Decode symbols amount
-            int symbols = Integer.parseInt(in.readLine());
-            // Decode symbols and its occurence
-            Vector<Integer> vectorSymb = new Vector<>(); // A vector with image symbols (pixels)
-            double[] vectorProb = new double[symbols]; // A vector with pixels probabilities
-            for (int i = 0; i < symbols; i++) {
-                vectorSymb.add(Integer.parseInt(in.readLine()));
-                vectorProb[i] = Double.valueOf(in.readLine()) / (width * height);
-            }
-            Huffman huffman = new Huffman(vectorSymb, vectorProb); // Encode the image
-            codification = huffman.getCodification(); // Get Huffman codification 
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Decoder.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Decoder.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+        return null;
     }
 
     public BmpImage decodeImage() {
@@ -79,31 +47,29 @@ public class Decoder {
             String path = "huffman.txt";
             // Cargar datos de archivo txt utf-16
             InputStream inputStream = new FileInputStream(path);
-            Reader ois = new InputStreamReader(inputStream, "UTF-16");
+          //  Reader ois = new InputStreamReader(inputStream, "UTF-16");
             // ...
             char[] cbuf = new char[2048];
             // NOTA: Leer la documentación del método read para entender como funciona 
            // int nChars = inputStreamWriter.read(cbuf);
 
             FileInputStream archivoentrada = new FileInputStream(path);
-          //  ObjectInputStream ois = new ObjectInputStream(archivoentrada, "UTF-16");
+          ObjectInputStream ois = new ObjectInputStream(archivoentrada);
 
             char character;
             StringBuffer symbols = new StringBuffer();
             headerDecode(ois);
 
-            for (int j = 0; j < image.getHeight(); j++) {
-                for (int i = 0; i < image.getWidth(); i++) {
+            for (int i=0; i < image.getWidth(); i++) {
+                for (int j = 0; j < image.getHeight(); j++) {
                     boolean painted = false;
                     while (!painted) {
                         Integer decodeSymb = decodeSymbol(symbols);
-                            System.out.println("decodeSymb: " + decodeSymb);
-                        if (decodeSymb != null && decodeSymb > -1) {
+                        if (decodeSymb != null) {
                             BmpHelper.writeBmpPixels(image, i, j, decodeSymb);
                             painted = true;
                         } else {
-                            character = (char) ois.read();
-                            System.out.println("character: " + character);
+                            character =  ois.readChar();
                             character = binarizeString(character, symbols);
                         }
                     }
@@ -115,7 +81,7 @@ public class Decoder {
         return image;
     }
 
-    private void headerDecode(Reader ois) {
+    private void headerDecode(ObjectInputStream ois) {
         try {
             int width = ois.read();
             int height = ois.read();
@@ -158,4 +124,6 @@ public class Decoder {
         }
         return character;
     }
+    
+   
 }
