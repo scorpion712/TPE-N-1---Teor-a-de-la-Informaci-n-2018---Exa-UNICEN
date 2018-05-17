@@ -3,6 +3,7 @@
  */
 package teoriadelainformaciontpe;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
@@ -82,5 +83,9 @@ public class BmpImage implements Comparable<BmpImage> {
     public int getWidth() {
         return bmp.getWidth();
     }
-   
+    
+    public int getPixel(int i, int j) {
+        return new Color(bmp.getRGB(i, j), true).getRed();
+    }
+    
 }
