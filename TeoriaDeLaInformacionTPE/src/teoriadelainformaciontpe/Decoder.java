@@ -35,6 +35,7 @@ public class Decoder {
     }
 
     private Integer getSymbol(String key) {
+        System.out.println("Codifiation: " + codification);
         if (codification.containsKey(key)) {
             for (Integer i : codification.keySet()) {
                 if (codification.get(i).equals(key)) {
@@ -46,23 +47,22 @@ public class Decoder {
         return -1;
     }
 
-
     private void headerDecode(BufferedReader in) {
         try {
             // Decode image size
-            
+
             int width = Integer.parseInt(in.readLine());
-            int height = Integer.parseInt(in.readLine()); 
+            int height = Integer.parseInt(in.readLine());
 
             image = new BmpImage(new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY), "decode_image");
             // Decode symbols amount
-            int symbols = Integer.parseInt(in.readLine());  
+            int symbols = Integer.parseInt(in.readLine());
             // Decode symbols and its occurence
             Vector<Integer> vectorSymb = new Vector<>(); // A vector with image symbols (pixels)
             double[] vectorProb = new double[symbols]; // A vector with pixels probabilities
             for (int i = 0; i < symbols; i++) {
                 vectorSymb.add(Integer.parseInt(in.readLine()));
-                vectorProb[i] = (double) Double.valueOf(in.readLine());
+                vectorProb[i] = Double.valueOf(in.readLine()) / (width * height);
             }
             Huffman huffman = new Huffman(vectorSymb, vectorProb); // Encode the image
             codification = huffman.getCodification(); // Get Huffman codification 
@@ -77,34 +77,85 @@ public class Decoder {
     public BmpImage decodeImage() {
         try {
             String path = "huffman.txt";
-            File file = new File(path);
-            // BufferedReader to read the file using UTF-16
-            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-16"));
- 
-			StringBuffer simbolos = new StringBuffer();
-            boolean painted = false;
-            if (file.exists()) {
-                headerDecode(in);
-                /**
-                 *  This part doesn't work
-                 */
-                for (int i = 0; i < image.getHeight(); i++) {
-                    for (int j = 0; j < image.getWidth(); j++) {
-                        // paint image
-                        int pixel = getSymbol(in.readLine());
-                        if (pixel != -1) {
-                            BmpHelper.writeBmpPixels(image, i, j, pixel);
+            // Cargar datos de archivo txt utf-16
+            InputStream inputStream = new FileInputStream(path);
+            Reader ois = new InputStreamReader(inputStream, "UTF-16");
+            // ...
+            char[] cbuf = new char[2048];
+            // NOTA: Leer la documentación del método read para entender como funciona 
+           // int nChars = inputStreamWriter.read(cbuf);
+
+            FileInputStream archivoentrada = new FileInputStream(path);
+          //  ObjectInputStream ois = new ObjectInputStream(archivoentrada, "UTF-16");
+
+            char character;
+            StringBuffer symbols = new StringBuffer();
+            headerDecode(ois);
+
+            for (int j = 0; j < image.getHeight(); j++) {
+                for (int i = 0; i < image.getWidth(); i++) {
+                    boolean painted = false;
+                    while (!painted) {
+                        Integer decodeSymb = decodeSymbol(symbols);
+                            System.out.println("decodeSymb: " + decodeSymb);
+                        if (decodeSymb != null && decodeSymb > -1) {
+                            BmpHelper.writeBmpPixels(image, i, j, decodeSymb);
                             painted = true;
+                        } else {
+                            character = (char) ois.read();
+                            System.out.println("character: " + character);
+                            character = binarizeString(character, symbols);
                         }
                     }
-                } 
-            }
-            if (painted) {
-                return image;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return image;
+    }
+
+    private void headerDecode(Reader ois) {
+        try {
+            int width = ois.read();
+            int height = ois.read();
+            image = new BmpImage(new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY), "decode_image");
+            int symbols = ois.read();
+
+            Vector<Integer> symbVec = new Vector<>();
+            double[] probVec = new double[symbols];
+            for (int i = 0; i < symbols; i++) {
+                symbVec.add(ois.read());
+                probVec[i] = (double) ois.read() / (width * height);
+            }
+            codification = new Huffman(symbVec, probVec).getCodification();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Integer decodeSymbol(StringBuffer symbols) {
+        for (int i = 0; i < symbols.length(); i++) {
+            String subst = symbols.substring(0, i);
+            Integer retorno = getSymbol(subst);
+            if (retorno != null) {
+                symbols.delete(0, i);
+                return retorno;
+            }
+        }
         return null;
+    }
+
+    private char binarizeString(char character, StringBuffer symbols) {
+        char mascara = 1 << 15;
+        for (int i = 0; i < 16; i++) {
+            if ((character & mascara) == 32768) {
+                symbols.append("1");
+            } else {
+                symbols.append("0");
+            }
+            character = (char) (character << 1);
+        }
+        return character;
     }
 }
