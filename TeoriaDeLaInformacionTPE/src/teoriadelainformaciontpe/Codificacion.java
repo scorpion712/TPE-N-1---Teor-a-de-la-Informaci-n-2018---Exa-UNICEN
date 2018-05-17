@@ -3,10 +3,17 @@
  */
 package teoriadelainformaciontpe;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -31,12 +38,8 @@ public class Codificacion {
         return new String();
     }
 
-    /*
-    Solo genero el código, falta decodificar... 
-	
     private BmpImage image;
-    
-    
+
     public Codificacion(BmpImage image) {
         this.image = image;
     }
@@ -45,15 +48,22 @@ public class Codificacion {
     private void headerEncode(BufferedWriter bw) {
         try {
             // Write image size
-            bw.write(image.getBmp().getWidth());
-            bw.write(image.getBmp().getHeight());
-
+            bw.write(String.valueOf(image.getWidth()));
+            bw.newLine();
+            bw.write(String.valueOf(image.getHeight()));
+            bw.newLine();
             Hashtable<Integer, Integer> readImageTable = BmpHelper.readImage(image.getBmp()); // symbol, times its appear
-            Vector<Integer> vectorSimbolos = new Vector<Integer>(readImageTable.keySet().size()); // Write symbols amount
+            Vector<Integer> vectorSimbolos = new Vector<Integer>(readImageTable.keySet());
+            bw.write(String.valueOf(vectorSimbolos.size())); // Write symbols amount
+            bw.newLine();
             Collections.sort(vectorSimbolos);
             Vector<Double> vectorProb = BmpHelper.getProb(vectorSimbolos, readImageTable, image.getBmp()); // symbol probability
-            for (Double d : vectorProb) {
-                bw.write(d.toString()); // symbol occurrences
+
+            for (int i=0; i < vectorSimbolos.size(); i++) {
+                bw.write(vectorSimbolos.elementAt(i).toString()); // symbol
+                bw.newLine();
+                bw.write(vectorProb.elementAt(i).toString()); // symbol occurrences
+                bw.newLine();
             }
         } catch (IOException ex) {
             Logger.getLogger(Codificacion.class.getName()).log(Level.SEVERE, null, ex);
@@ -61,41 +71,41 @@ public class Codificacion {
     }
 
     public void generateFile() {
-        Map<Integer, String> codification = new Huffman(image).getCodification(); // gets Huffman codification
+        Map<Integer, String> codification = new Huffman(image).doCodification(); // gets Huffman codification
         try {
+
             String path = "huffman.txt";
             File file = new File(path);
-            BufferedWriter bw;
-            if (file.exists()) {
-                bw = new BufferedWriter(new FileWriter(file));
 
+            // Guardar archivo txt utf-16
+            OutputStream outputStream = new FileOutputStream(path);
+            Writer outputStreamWriter = new OutputStreamWriter(outputStream, "UTF-16");
+
+            // Buffered to write the file using UTF-16
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter (new FileOutputStream(file), "UTF-16"));
+
+            if (file.exists()) {
                 // Header to encode 
                 headerEncode(bw);
-
                 Iterator it = codification.keySet().iterator();
                 while (it.hasNext()) {
                     Integer key = (Integer) it.next();
-                    bw.write(codification.get(key));
-                    //bw.write(key + " = " + codification.get(key));
-                    //System.out.println(key + " = " + codification.get(key));
+                    bw.write(codification.get(key)); // 1's y 0's codificados en un String
+                    bw.newLine();
                 }
             } else {
-                bw = new BufferedWriter(new FileWriter(file));
-
+                headerEncode(bw);
                 Iterator it = codification.keySet().iterator();
                 while (it.hasNext()) {
                     Integer key = (Integer) it.next();
-                    bw.write(key + " = " + codification.get(key));
-                    System.out.println(key + " = " + codification.get(key));
+                    bw.write(codification.get(key)); // 1's y 0's codificados en un String
+                    bw.newLine();
                 }
-                bw.close();
             }
+            bw.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
-
-     */
 }
