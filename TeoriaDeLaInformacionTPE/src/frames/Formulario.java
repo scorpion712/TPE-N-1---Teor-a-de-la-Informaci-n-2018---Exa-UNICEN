@@ -125,6 +125,7 @@ public class Formulario extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {                                         
         // 2) Generar el histograma a partir de la distribución de tonos y calcular la media el el desvío de cada distribución
         new Ejercicio2(this, false, images, original);
+        new Ejercicio2(this, false, images, original);
     }                                        
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {                                         
