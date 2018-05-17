@@ -16,14 +16,35 @@ import java.util.Vector;
 public class Huffman {
 
     private BmpImage image;
+    private Map<Integer, String> codification = new HashMap<>();
 
     public Huffman(BmpImage image) {
         this.image = image;
     }
 
-    
-    // Getting huffman's code for the image
+    public Huffman(Vector<Integer> symbols, double symbolsProb[]) {
+        Vector<Node> middle = new Vector<Node>();
+        Map<Integer, Node> symbol_node = new HashMap<Integer, Node>();
+        double[] probabilities = new double[symbols.size()];
+        for (int i = 0; i < symbols.size(); i++) {
+            probabilities[i] = symbolsProb[i];
+            Node new_node = new Node(symbolsProb[i], -1, null);
+            middle.add(new_node);
+            symbol_node.put(symbols.elementAt(i), middle.elementAt(i));
+        }
+        encode(middle);
+        for (int i = 0; i < symbols.size(); i++) {
+            Node node = symbol_node.get(symbols.elementAt(i));
+            codification.put(symbols.elementAt(i), recursion(node));
+        }
+    }
+
     public Map<Integer, String> getCodification() {
+        return codification;
+    }
+
+    // Getting huffman's code for the image
+    public Map<Integer, String> doCodification() {
         Map<Integer, String> codification = new HashMap<>();
         Map<Integer, Double> distribution = BmpHelper.getDistribution(image);
 
