@@ -25,9 +25,7 @@ public class Huffman {
     public Huffman(Vector<Integer> symbols, double symbolsProb[]) {
         Vector<Node> middle = new Vector<Node>();
         Map<Integer, Node> symbol_node = new HashMap<Integer, Node>();
-        double[] probabilities = new double[symbols.size()];
         for (int i = 0; i < symbols.size(); i++) {
-            probabilities[i] = symbolsProb[i];
             Node new_node = new Node(symbolsProb[i], -1, null);
             middle.add(new_node);
             symbol_node.put(symbols.elementAt(i), middle.elementAt(i));
@@ -43,7 +41,17 @@ public class Huffman {
         return codification;
     }
 
-    // Getting huffman's code for the image
+    public int getDecodification(String code) {
+        Vector<Integer> symbols = new Vector<Integer>(codification.keySet());
+        for (int i = 0; i < symbols.size(); i++) {
+            if (code.equals(codification.get(symbols.elementAt(i)))) {
+                return symbols.elementAt(i);
+            }
+        }
+        return -1;
+    }
+
+// Getting huffman's code for the image
     public Map<Integer, String> doCodification() {
         Map<Integer, String> codification = new HashMap<>();
         Map<Integer, Double> distribution = BmpHelper.getDistribution(image);
