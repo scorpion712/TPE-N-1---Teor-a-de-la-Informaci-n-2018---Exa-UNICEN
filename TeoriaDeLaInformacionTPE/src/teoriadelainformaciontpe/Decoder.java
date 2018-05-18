@@ -69,7 +69,6 @@ public class Decoder {
             char character;
             StringBuffer symbols = new StringBuffer();
 
-                        System.out.println("Codification: " + codification.toString());
             //int n = headerDecode(cbuf);
             for (int i = 0; i < image.getWidth(); i++) {
                 for (int j = 0; j < image.getHeight(); j++) {
@@ -77,6 +76,7 @@ public class Decoder {
                     while (!painted && n < nChars) {
                         Integer decodeSymb = decodeSymbol(symbols);
                         if (decodeSymb != null) {
+                            image.getBmp().setRGB(i, j, decodeSymb);
                             BmpHelper.writeBmpPixels(image, i, j, decodeSymb);
                             painted = true;
                         } else {
