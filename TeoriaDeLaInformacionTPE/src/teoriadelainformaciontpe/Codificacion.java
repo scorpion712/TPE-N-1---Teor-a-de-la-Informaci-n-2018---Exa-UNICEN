@@ -21,19 +21,12 @@ import java.util.logging.Logger;
  * @author ileitao
  * @author ldiez
  */
-public class Codificacion {
-
-    public static void generarBits(char num) {
-
-    }
-
-    public static String generarCodificacion(Vector<String> msg, HashMap<String, String[]> codif) {
-        return new String();
-    }
+public class Encoder {
 
     private BmpImage image;
-
-    public Codificacion(BmpImage image) {
+    private long compressedSize;
+    
+    public Encoder(BmpImage image) {
         this.image = image;
     }
     
@@ -43,7 +36,6 @@ public class Codificacion {
         try {
 
             String path = "huffman.txt";
-            File file = new File(path);
             // Guardar archivo txt utf-16
             OutputStream outputStream = new FileOutputStream(path);
             Writer writer = new OutputStreamWriter(outputStream, "UTF-16");
@@ -76,6 +68,10 @@ public class Codificacion {
             }
 
             writer.close();
+            
+            // Setting original image size
+            File file = new File(path);
+            compressedSize = file.length();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -95,7 +91,7 @@ public class Codificacion {
                 writer.write(readImageTable.get(vectorSimbolos.elementAt(i))); // symbol occurrences
             }
         } catch (IOException ex) {
-            Logger.getLogger(Codificacion.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Encoder.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -111,4 +107,7 @@ public class Codificacion {
         return buffer;
     }
 
+    public long getCompressedSize() {
+        return compressedSize;
+    }
 }
