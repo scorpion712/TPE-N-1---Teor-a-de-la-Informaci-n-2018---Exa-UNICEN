@@ -41,6 +41,7 @@ public class Formulario extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
         copia1 = new javax.swing.JLabel();
         copia2 = new javax.swing.JLabel();
         copia3 = new javax.swing.JLabel();
@@ -77,6 +78,14 @@ public class Formulario extends javax.swing.JFrame {
             }
         });
         getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 740, -1, -1));
+
+        jButton4.setText("Ejercicio 3");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 740, -1, -1));
         getContentPane().add(copia1, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 80, 200, 180));
         getContentPane().add(copia2, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 290, 200, 180));
         getContentPane().add(copia3, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 290, 200, 180));
@@ -125,15 +134,16 @@ public class Formulario extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {                                         
         // 2) Generar el histograma a partir de la distribución de tonos y calcular la media el el desvío de cada distribución
         new Ejercicio2(this, false, images, original);
-        new Ejercicio2(this, false, images, original);
     }                                        
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {                                         
-        // Implementar un algoritmo que permita codificar una imagen mediante el método de Huffman semi-estático y posteriormente reconstruirla 
+        // 3) Implementar un algoritmo que permita codificar una imagen mediante el método de Huffman semi-estático y posteriormente reconstruirla 
         //(el archivo comprimido deberá contener la secuencia de bits codificados junto con los datos necesarios para la reconstrucción de la imagen original).
-        jLabel2.setIcon(null);
-        new Codificacion(original).generateFile();
-        jLabel2.setIcon(new ImageIcon(new Decoder().decodeImage().getBmp())); 
+        new Ejercicio3(this, false);
+    }                                        
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        new Ejercicio4(this, false, original);
     }                                        
 
     /**
@@ -185,6 +195,7 @@ public class Formulario extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel2;
     // End of variables declaration                   
 }
