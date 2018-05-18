@@ -8,7 +8,7 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import teoriadelainformaciontpe.BmpHelper;
 import teoriadelainformaciontpe.BmpImage;
-import teoriadelainformaciontpe.Codificacion;
+import teoriadelainformaciontpe.Encoder;
 import teoriadelainformaciontpe.Decoder;
 
 /**
@@ -79,7 +79,7 @@ public class Formulario extends javax.swing.JFrame {
         });
         getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 740, -1, -1));
 
-        jButton4.setText("Ejercicio 3");
+        jButton4.setText("Ejercicio 4");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton4ActionPerformed(evt);
@@ -143,7 +143,7 @@ public class Formulario extends javax.swing.JFrame {
     }                                        
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {                                         
-        new Ejercicio4(this, false, original);
+        new Ejercicio4(this, false);
     }                                        
 
     /**
